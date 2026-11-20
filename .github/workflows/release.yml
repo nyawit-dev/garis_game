@@ -6,6 +6,11 @@ on:
       - 'v*'
       - '[0-9]*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name for the manual release (e.g. v1.0.1)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -88,6 +93,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag || format('ci-{0}', github.run_number) }}
+          target_commitish: ${{ github.sha }}
           files: ${{ steps.apk.outputs.name }}
           generate_release_notes: true
           fail_on_unmatched_files: true
